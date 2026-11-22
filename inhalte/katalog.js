@@ -19,6 +19,7 @@ window.KATALOG = {
 
   themen: [
     "deutsch/diktat-wortarten.js",
+    "deutsch/gross-klein.js",
     "deutsch/zeitformen.js",
     "deutsch/wortarten-saetze.js",
     "deutsch/rechtschreibung.js",

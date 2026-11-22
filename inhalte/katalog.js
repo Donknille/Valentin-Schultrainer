@@ -19,7 +19,14 @@ window.KATALOG = {
 
   themen: [
     "deutsch/diktat-wortarten.js",
+    "deutsch/zeitformen.js",
+    "deutsch/wortarten-saetze.js",
+    "deutsch/rechtschreibung.js",
     "mathe/einmaleins.js",
+    "mathe/zahlen-bis-1000.js",
+    "mathe/rechnen-bis-1000.js",
+    "mathe/groessen.js",
+    "mathe/geometrie.js",
     "sachkunde/igel.js",
     "musik/instrumente.js",
     "musik/noten.js"

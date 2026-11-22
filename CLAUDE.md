@@ -14,7 +14,7 @@ Statische Seite, **kein Build-Schritt, keine Abhängigkeiten**.
 |---|---|
 | `index.html` | Grundgerüst (Kopfzeile, Eule, Container) |
 | `app.css` | Design für Bildschirm und Druck (`@media print`, A4) |
-| `app.js` | App-Logik: Navigation per Hash (`#/fach/…`, `#/thema/…`, `#/drucken/…`, `#/runde`), Aufgabentypen (`RENDER`), Arbeitsblätter (`DRUCK`), Vorlesen, Sticker |
+| `app.js` | App-Logik: Navigation per Hash (`#/fach/…`, `#/thema/…`, `#/drucken/…`, `#/runde`, `#/welt`), Welten (`WELTEN`), Aufgabentypen (`RENDER`), Arbeitsblätter (`DRUCK`), Vorlesen, Sammelbilder, Sicherungscode |
 | `inhalte/katalog.js` | Fächer (Farben) und Liste der Themen-Dateien, Name des Kindes |
 | `inhalte/<fach>/<thema>.js` | Ein Thema pro Datei, ruft `thema({...})` auf |
 | `tools/pruefen.js` | Prüft Syntax und alle Inhalte (`node tools/pruefen.js`) |
@@ -22,7 +22,9 @@ Statische Seite, **kein Build-Schritt, keine Abhängigkeiten**.
 
 - Externe Ressource: nur Google Fonts (Andika, Nunito). Fällt das weg, greifen System-Schriften.
 - Vorlesen über die Web Speech API (`speechSynthesis`, `de-DE`).
-- Fortschritt (Sterne, beste Sterne je Übung, falsch gelöste Aufgaben, Diktat-Modus) in `localStorage` mit Präfix `vs_`, alle Zugriffe in try/catch.
+- Fortschritt (Sterne, beste Sterne je Übung, falsch gelöste Aufgaben, Diktat-Modus, gewählte Welt) in `localStorage` mit Präfix `vs_`, alle Zugriffe in try/catch. Keine Datenbank, keine Kosten. `navigator.storage.persist()` wird angefragt.
+- **Sicherungscode** (Elternbereich): `VS1-` + Base64(JSON). Damit lässt sich der Stand sichern oder auf ein anderes Gerät übertragen.
+- **Welten** (Designs): `eule` (Standard), `monster` (Monster-Trainer), `weltraum` (Sternen-Akademie), `fussball` (Grün-Weiß). Definiert in `WELTEN` in `app.js` (Maskottchen-SVG, Texte, Ränge, Sammelbilder, Fachfarben), Aussehen über `[data-welt=…]` in `app.css`. Bewusst **ohne** geschützte Namen, Figuren, Logos oder Vereinswappen (Pokémon, Star Wars, Werder Bremen). Bitte so lassen, die Seite ist öffentlich erreichbar.
 - Falsch gelöste Aufgaben werden über `themaId/uebungId/hash(Aufgabe)` gemerkt. Aufgaben dürfen also beliebig eingefügt, verschoben oder gelöscht werden.
 - `noindex` als Meta-Tag und als Header (`vercel.json`). Die Seite soll nicht in Suchmaschinen auftauchen.
 
@@ -35,6 +37,7 @@ Wenn der Nutzer Fotos von Arbeitsheft-Seiten oder Stichpunkte schickt:
 5. Committen. Vercel deployt automatisch.
 
 Inhaltliche Regeln:
+- Grundlage ist der **Fachlehrplan Grundschule Sachsen-Anhalt** (Deutsch und Mathematik, Stand 01.08.2026, Schuljahrgänge 3/4), abrufbar auf bildung-lsa.de. Valentin ist in Klasse 3 (Schuljahr 2026/27): Zahlenraum bis 1000, Inhalte aus dem Doppeljahrgang 3/4 passend auswählen.
 - Fachlich korrekt und passend für die 3. Klasse. Bei Unsicherheit eine Aufgabe lieber weglassen.
 - Prüfung ist bewusst **case-sensitive** (Groß/klein ist Lernziel). Eingabefelder haben `autocapitalize/autocorrect/spellcheck = off`, das muss so bleiben.
 - Bei `auswahl` ist die **erste** Option die richtige.

@@ -80,7 +80,7 @@ for(const th of themen){
           break}
         case 'auswahl':
           if(a.text!==undefined&&typeof a.text!=='string')F(wa,'"text" muss ein Text sein');
-          if(!istStr(a.text)&&!istStr(a.frage))F(wa,'"text" oder "frage" angeben');
+          if(!istStr(a.text)&&!istStr(a.frage)&&!istStr(u.frage))F(wa,'"text" oder "frage" angeben');
           if(!Array.isArray(a.opts)||a.opts.length<2||!a.opts.every(istStr))F(wa,'"opts" braucht mindestens 2 Antworten (die erste ist richtig)');
           else if(new Set(a.opts).size!==a.opts.length)F(wa,'"opts" enthält eine Antwort doppelt');
           if(a.text&&(a.text.match(/___/g)||[]).length>1)F(wa,'bei "auswahl" höchstens eine Lücke ___');

@@ -13,8 +13,8 @@ const store={
   get(k,d){try{const v=localStorage.getItem(PFX+k);return v===null?d:JSON.parse(v)}catch(e){return d}},
   set(k,v){try{localStorage.setItem(PFX+k,JSON.stringify(v))}catch(e){}}
 };
-const S={stars:store.get('stars',0),best:store.get('best',{}),wrong:store.get('wrong',[]),paper:store.get('paper',false)};
-function save(){store.set('stars',S.stars);store.set('best',S.best);store.set('wrong',S.wrong);store.set('paper',S.paper)}
+const S={stars:store.get('stars',0),best:store.get('best',{}),wrong:store.get('wrong',[]),paper:store.get('paper',false),welt:store.get('welt','eule')};
+function save(){store.set('stars',S.stars);store.set('best',S.best);store.set('wrong',S.wrong);store.set('paper',S.paper);store.set('welt',S.welt)}
 
 /* ============ Helfer ============ */
 const app=document.getElementById('app');
@@ -30,11 +30,81 @@ function noAuto(inp){inp.setAttribute('autocapitalize','off');inp.setAttribute('
 function starStr(n){return '⭐'.repeat(n)+'☆'.repeat(Math.max(0,3-n))}
 function cap(w){return w.charAt(0).toUpperCase()+w.slice(1)}
 function sortDe(a){return a.slice().sort((x,y)=>x.localeCompare(y,'de'))}
-const PRAISE=['Super!','Klasse gemacht!','Spitze!','Richtig! 🎉','Toll!','Sehr gut!','Genau so!','Stark! 💪','Wunderbar!'];
-const praise=()=>PRAISE[Math.floor(Math.random()*PRAISE.length)];
+const praise=()=>{const l=welt().lob;return l[Math.floor(Math.random()*l.length)]};
 function fillSolution(p,ans){let i=0;return p.replace(/___/g,()=>'<b>'+esc(ans[i++]||'')+'</b>')}
 const OWL=document.querySelector('#logo svg').outerHTML;
-const STICKER=['🐶','🐱','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🐧','🐔','🦄','🐙','🐢','🦋','🐞','🐬','🦒','🐘','🦓','🦔','🦉','🐳','🦕','🦖','🐉'];
+/* ============ Welten (Designs zum Umschalten) ============ */
+const SVG_MONSTER='<svg class="owl" viewBox="0 0 64 64" aria-hidden="true">'+
+ '<path d="M14 22 Q8 8 20 12 L24 20 Z" fill="#4FA8E8"/><path d="M50 22 Q56 8 44 12 L40 20 Z" fill="#4FA8E8"/>'+
+ '<ellipse cx="32" cy="38" rx="22" ry="21" fill="#6BBEF5"/><ellipse cx="32" cy="44" rx="13" ry="11" fill="#E4F4FF"/>'+
+ '<circle cx="23" cy="33" r="6.5" fill="#fff"/><circle cx="41" cy="33" r="6.5" fill="#fff"/>'+
+ '<circle cx="24" cy="34" r="3.8" fill="#1E2340"/><circle cx="40" cy="34" r="3.8" fill="#1E2340"/>'+
+ '<circle cx="25.3" cy="32.6" r="1.3" fill="#fff"/><circle cx="41.3" cy="32.6" r="1.3" fill="#fff"/>'+
+ '<ellipse cx="16" cy="41" rx="3.4" ry="2.2" fill="#FF9BB3"/><ellipse cx="48" cy="41" rx="3.4" ry="2.2" fill="#FF9BB3"/>'+
+ '<path d="M27 42 Q32 47 37 42" stroke="#1E2340" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M29.5 43.6 L31 46 L32.5 43.9 Z" fill="#fff"/>'+
+ '<path d="M32 9 l2.4 5 5.4.6-4 3.7 1.1 5.3L32 21l-4.9 2.6 1.1-5.3-4-3.7 5.4-.6z" fill="#FFD43B"/></svg>';
+const SVG_ROBO='<svg class="owl" viewBox="0 0 64 64" aria-hidden="true">'+
+ '<line x1="32" y1="5" x2="32" y2="14" stroke="#9AA6D6" stroke-width="2.5"/><circle cx="32" cy="5" r="3.2" fill="#FF4D6D"/>'+
+ '<rect x="12" y="13" width="40" height="28" rx="10" fill="#D7DEFF"/><rect x="17" y="19" width="30" height="14" rx="7" fill="#10163A"/>'+
+ '<circle cx="25" cy="26" r="3.6" fill="#33E1FF"/><circle cx="39" cy="26" r="3.6" fill="#33E1FF"/>'+
+ '<rect x="9" y="22" width="4" height="10" rx="2" fill="#9AA6D6"/><rect x="51" y="22" width="4" height="10" rx="2" fill="#9AA6D6"/>'+
+ '<rect x="20" y="43" width="24" height="16" rx="6" fill="#B9C4F5"/><circle cx="32" cy="51" r="4" fill="#33E1FF"/>'+
+ '<path d="M27 36 Q32 39 37 36" stroke="#10163A" stroke-width="2" fill="none" stroke-linecap="round"/></svg>';
+const SVG_BALL='<svg class="owl" viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="ballclip"><circle cx="32" cy="33" r="23"/></clipPath></defs>'+
+ '<circle cx="32" cy="33" r="23" fill="#fff"/><g clip-path="url(#ballclip)" fill="#1C2B22"><path d="M32.0 26.0 L38.7 30.8 L36.1 38.7 L27.9 38.7 L25.3 30.8Z M39.9 22.1 L37.2 13.7 L44.3 8.5 L51.5 13.7 L48.8 22.1Z M44.8 37.2 L52.0 32.0 L59.1 37.2 L56.4 45.6 L47.6 45.6Z M32.0 46.5 L39.1 51.7 L36.4 60.1 L27.6 60.1 L24.9 51.7Z M19.2 37.2 L16.4 45.6 L7.6 45.6 L4.9 37.2 L12.0 32.0Z M24.1 22.1 L15.2 22.1 L12.5 13.7 L19.7 8.5 L26.8 13.7Z"/></g>'+
+ '<path d="M32.0 26.0 L32.0 17.0 M38.7 30.8 L47.2 28.1 M36.1 38.7 L41.4 45.9 M27.9 38.7 L22.6 45.9 M25.3 30.8 L16.8 28.1" stroke="#1C2B22" stroke-width="1.6"/><circle cx="32" cy="33" r="23" fill="none" stroke="#1C2B22" stroke-width="2.2"/>'+
+ '<path d="M14 55 Q32 63 50 55 L52 60 Q32 68 12 60Z" fill="#1D9053"/><path d="M22 58.6 Q32 61.5 42 58.6" stroke="#fff" stroke-width="2" fill="none"/></svg>';
+
+const WELTEN={
+ eule:{id:'eule',name:'Eulen-Schule',beschreibung:'Gemütlich und bunt',icon:'🦉',maskottchen:null,
+  gruss:['Was möchtest du heute üben?','Schön, dass du da bist!','Bereit für neue Sterne?','Heute wirst du wieder ein bisschen schlauer!','Such dir ein Fach aus!'],
+  lob:['Super!','Klasse gemacht!','Spitze!','Richtig! 🎉','Toll!','Sehr gut!','Genau so!','Stark! 💪','Wunderbar!'],
+  ende:['Super gemacht{n}! 🏆','Richtig gut!','Gut geübt, weiter so!','Übung macht den Meister! 💪'],
+  sticker:['🐶','🐱','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🐧','🐔','🦄','🐙','🐢','🦋','🐞','🐬','🦒','🐘','🦓','🦔','🦉','🐳','🦕','🦖','🐉'],
+  stickerTitel:'Meine Sticker',stickerNeu:'Neuer Sticker für dein Album!',stickerWort:'Sticker',
+  raenge:['Eulen-Küken','Lese-Eule','Kluge Eule','Weise Eule','Meister-Eule','Super-Eule'],
+  konfetti:['⭐','🎉','✨','🌟','🎈'],faecher:{}},
+ monster:{id:'monster',name:'Monster-Trainer',beschreibung:'Sammle Monster und werde Champion',icon:'🐉',maskottchen:SVG_MONSTER,
+  gruss:['Ein wildes Quiz erscheint!','Bereit für dein nächstes Training?','Welche Arena nimmst du heute?','Hier warten neue Monster auf dich!','Trainiere und werde Champion!'],
+  lob:['Volltreffer!','Sehr effektiv!','Kritischer Treffer!','Stark trainiert!','Level-Up! ⬆️','Super! ⚡','Spitze, Trainer!'],
+  ende:['Volltreffer{n}! Sehr effektiv! 🏆','Starker Kampf!','Gut trainiert, weiter so!','Jeder Champion fängt klein an! 💪'],
+  sticker:['🐉','🐲','🦖','🦕','🐊','🦎','🐍','🐢','🐙','🦑','🦀','🐡','🐠','🦈','🐬','🐳','🦋','🐝','🐞','🦂','🦇','🦉','🦅','🦜','🦚','🦩','🐺','🦊','🦄','🦁'],
+  stickerTitel:'Meine Monster-Sammlung',stickerNeu:'Neues Monster gefangen!',stickerWort:'Monster',
+  raenge:['Neuling','Entdecker','Trainer','Profi-Trainer','Arena-Meister','Champion'],
+  konfetti:['⚡','⭐','💥','✨','🌟'],
+  faecher:{deutsch:{emoji:'🔥',label:'Feuer-Arena',farbe:'#E2482F',dunkel:'#A32B17',hell:'#FFE1DA'},mathe:{emoji:'💧',label:'Wasser-Arena',farbe:'#2F7FE0',dunkel:'#1C55A3',hell:'#DCEBFF'},
+   sachkunde:{emoji:'🌿',label:'Pflanzen-Arena',farbe:'#2E9D4E',dunkel:'#1B6E34',hell:'#DDF5E3'},musik:{emoji:'⚡',label:'Elektro-Arena',farbe:'#F5C400',dunkel:'#B38D00',hell:'#FFF5C2',text:'#3A2E00'}}},
+ weltraum:{id:'weltraum',name:'Sternen-Akademie',beschreibung:'Fliege durch die Galaxis',icon:'🚀',maskottchen:SVG_ROBO,
+  gruss:['Willkommen an Bord, Pilot!','Alle Systeme bereit. Wohin fliegen wir?','Eine neue Mission wartet!','Die Galaxis braucht dein Wissen!','Startklar für den Hyperraum?'],
+  lob:['Ziel erfasst! 🎯','Volltreffer!','Mission erfolgreich!','Sternenstark! ✨','Perfekte Landung!','Antrieb voll! 🚀','Genial, Pilot!'],
+  ende:['Mission erfüllt{n}! 🚀','Starker Flug, Pilot!','Gut navigiert, weiter so!','Neuer Versuch, Kadett! 💪'],
+  sticker:['🚀','🛸','🛰️','🪐','🌍','🌎','🌏','🌕','🌖','🌗','🌘','🌑','🌒','🌓','🌔','🌙','⭐','🌟','✨','☄️','🌠','🌌','👽','👾','🤖','🔭','🌞','💫','⚡','💎'],
+  stickerTitel:'Meine Sternenkarte',stickerNeu:'Neuer Himmelskörper entdeckt!',stickerWort:'Entdeckung',
+  raenge:['Kadett','Pilot','Navigator','Kapitän','Kommandant','Sternenritter'],
+  konfetti:['⭐','✨','🌟','💫','🚀'],
+  faecher:{deutsch:{emoji:'🪐',label:'Planet der Wörter',farbe:'#FF4D6D',dunkel:'#B3213E',hell:'#3A1626'},mathe:{emoji:'🌌',label:'Zahlen-Nebel',farbe:'#2FB8FF',dunkel:'#1478B3',hell:'#0F2A44'},
+   sachkunde:{emoji:'🌍',label:'Forscher-Station',farbe:'#39D98A',dunkel:'#1F9A5C',hell:'#0F3326',text:'#062015'},musik:{emoji:'🛸',label:'Klang-Galaxie',farbe:'#B57BFF',dunkel:'#7B45C9',hell:'#2A1A4A'}}},
+ fussball:{id:'fussball',name:'Grün-Weiß',beschreibung:'Fußball-Welt in Grün und Weiß',icon:'⚽',maskottchen:SVG_BALL,
+  gruss:['Anpfiff! Was trainieren wir heute?','Auf geht\'s, Grün-Weiß!','Das Team wartet auf dich!','Heute schießen wir viele Tore!','Bereit fürs nächste Spiel?'],
+  lob:['Toooor! ⚽','Volltreffer!','Traumpass!','Wie ein Profi!','Abgestaubt!','Klasse Schuss!','Sieg! 💚'],
+  ende:['Toooor! Sieg für dich{n}! 🏆','Starkes Spiel!','Gut gekämpft, weiter so!','Nächstes Spiel gewinnen wir! 💪'],
+  sticker:['⚽','🥅','🏆','🥇','🥈','🥉','🏅','👟','🧤','🎽','🧦','🟢','⚪','🐓','🐱','🐶','🐴','🐟','🚲','⛵','🏟️','📣','🥁','🎉','⭐','🌟','💚','🤍','🍀','🦁'],
+  stickerTitel:'Mein Sammelalbum',stickerNeu:'Neues Sammelbild fürs Album!',stickerWort:'Sammelbild',
+  raenge:['Bambini','Nachwuchs','Stammspieler','Kapitän','Torjäger','Legende'],
+  konfetti:['⚽','💚','🤍','🏆','⭐'],
+  faecher:{deutsch:{emoji:'📖',label:'Sturm',farbe:'#1D9053',dunkel:'#11663A',hell:'#DDF3E6'},mathe:{emoji:'🔢',label:'Mittelfeld',farbe:'#0E5C3A',dunkel:'#073D26',hell:'#D6EDE1'},
+   sachkunde:{emoji:'🌍',label:'Abwehr',farbe:'#2F9E73',dunkel:'#1D6E4E',hell:'#DCF4EA'},musik:{emoji:'🎵',label:'Fankurve',farbe:'#EE7F1A',dunkel:'#AE5806',hell:'#FFEBD6'}}}
+};
+const RANG_STERNE=[0,20,50,100,200,400];
+function welt(){return WELTEN[S.welt]||WELTEN.eule}
+function maskottchen(){return welt().maskottchen||OWL}
+function fachStil(f){return Object.assign({},f,welt().faecher[f.id]||{})}
+function rang(){const w=welt();let i=0;RANG_STERNE.forEach((g,k)=>{if(S.stars>=g)i=k});return {name:w.raenge[i],stufe:i+1,naechster:RANG_STERNE[i+1]}}
+function weltAnwenden(){
+  document.documentElement.setAttribute('data-welt',welt().id);
+  document.getElementById('logo').innerHTML=maskottchen();
+}
+
 const PRO_STICKER=10;
 const PASTELL=['#DDF3EF','#E3ECFF','#FFE9D6','#F3E5FF','#FFF2C2','#FFE0EC','#E2F6D9','#FFE3D9'];
 const STANDARD_FARBE={farbe:'#1F8A7D',dunkel:'#146458',hell:'#DDF3EF'};
@@ -86,7 +156,7 @@ function themaSterne(th){let s=0;th.uebungen.forEach(u=>s+=S.best[u._key]||0);re
 function frageVon(it){return it.frage||it._u.frage||DEFAULT_FRAGE[it.t]||''}
 
 /* ============ Farben, Kopfzeile, Navigation ============ */
-function setFarbe(f){const c=f||STANDARD_FARBE,r=document.documentElement.style;r.setProperty('--f',c.farbe);r.setProperty('--fd',c.dunkel);r.setProperty('--fl',c.hell)}
+function setFarbe(f){const c=f?fachStil(f):STANDARD_FARBE,r=document.documentElement.style;r.setProperty('--f',c.farbe);r.setProperty('--fd',c.dunkel);r.setProperty('--fl',c.hell);r.setProperty('--ft',c.text||'#fff')}
 let zurueckZiel=null;
 function kopf(titel,ziel){
   document.getElementById('htitel').textContent=titel;
@@ -100,6 +170,7 @@ function zurueck(){if(tiefe>0)history.back();else location.replace(zurueckZiel||
 window.addEventListener('hashchange',()=>{if(eigeneNav)tiefe++;else tiefe=Math.max(0,tiefe-1);eigeneNav=false;render()});
 document.getElementById('hback').onclick=zurueck;
 document.getElementById('logo').onclick=()=>go('#/');
+document.getElementById('weltbtn').onclick=()=>go('#/welt');
 
 function render(){
   stopTTS();
@@ -109,6 +180,7 @@ function render(){
   else if(r==='thema'&&TH[a])seiteThema(TH[a]);
   else if(r==='drucken'&&TH[a])seiteDrucken(TH[a]);
   else if(r==='runde'&&R)(R.done?zeigeEnde():showItem());
+  else if(r==='welt')seiteWelt();
   else seiteStart();
   window.scrollTo(0,0);
 }
@@ -116,37 +188,42 @@ function render(){
 /* ============ Startseite ============ */
 function seiteStart(){
   setFarbe(null);kopf(K.appTitel,null);
-  const gruss=['Was möchtest du heute üben?','Schön, dass du da bist!','Bereit für neue Sterne?','Heute wirst du wieder ein bisschen schlauer!','Such dir ein Fach aus!'];
+  const w=welt(),rg=rang();
   const h=el('div','hello');
-  h.innerHTML=OWL+'<div class="bubble"><b>Hallo'+(K.kind?' '+esc(K.kind):'')+'! 👋</b>'+gruss[Math.floor(Math.random()*gruss.length)]+'</div>';
+  h.innerHTML=maskottchen()+'<div class="bubble"><b>Hallo'+(K.kind?' '+esc(K.kind):'')+'! 👋</b>'+w.gruss[Math.floor(Math.random()*w.gruss.length)]+
+    '<span class="rang">🏅 '+esc(rg.name)+' · Stufe '+rg.stufe+(rg.naechster?' · nächste Stufe bei '+rg.naechster+' ⭐':'')+'</span></div>';
   app.appendChild(h);
 
   const g=el('div','faecher');
-  K.faecher.forEach(f=>{
-    const th=themenVon(f.id,false);
-    const b=el('button','fach');b.style.setProperty('--c',f.farbe);b.style.setProperty('--cd',f.dunkel);
-    b.innerHTML=(th.some(istNeu)?'<span class="badge neu">NEU</span>':'')+'<span class="ic">'+f.emoji+'</span><span class="t">'+esc(f.titel)+'</span><span class="d">'+(th.length?th.length+(th.length===1?' Thema':' Themen'):'Bald geht es los')+'</span>';
+  K.faecher.forEach(f0=>{
+    const f=fachStil(f0);const th=themenVon(f.id,false);
+    const b=el('button','fach');b.style.setProperty('--c',f.farbe);b.style.setProperty('--cd',f.dunkel);if(f.text)b.style.setProperty('--ct',f.text);
+    b.innerHTML=(th.some(istNeu)?'<span class="badge neu">NEU</span>':'')+'<span class="ic">'+f.emoji+'</span>'+(f.label?'<span class="lbl">'+esc(f.label)+'</span>':'')+'<span class="t">'+esc(f.titel)+'</span><span class="d">'+(th.length?th.length+(th.length===1?' Thema':' Themen'):'Bald geht es los')+'</span>';
     b.onclick=()=>go('#/fach/'+f.id);g.appendChild(b);
   });
   app.appendChild(g);
 
   const aktiv=Object.values(TH).filter(t=>!t.archiv);
   if(aktiv.length){
-    const bunt=el('button','wide');bunt.style.background='linear-gradient(100deg,#E0662B,#3A78D6 40%,#2B9455 70%,#8E52D9)';bunt.style.color='#fff';
+    const fs=K.faecher.map(fachStil);
+    const bunt=el('button','wide bunt');bunt.style.background='linear-gradient(100deg,'+fs.map((f,i)=>f.farbe+' '+Math.round(i/(fs.length-1||1)*100)+'%').join(',')+')';bunt.style.color='#fff';
     bunt.innerHTML='<span class="em">🎲</span><span><span class="t">Bunte Runde</span><span class="d">Von allen Fächern etwas</span></span>';
     bunt.onclick=()=>startRound({art:'bunt'});app.appendChild(bunt);
   }
   if(S.wrong.length){
-    const rep=el('button','wide');rep.style.background='#FFE9D6';
+    const rep=el('button','wide wdh');
     rep.innerHTML='<span class="em">🔁</span><span><span class="t">Meine Übe-Aufgaben ('+S.wrong.length+')</span><span class="d">Aufgaben, die noch nicht geklappt haben</span></span>';
     rep.onclick=()=>startRound({art:'wdh'});app.appendChild(rep);
   }
+  const wb=el('button','wide weltwahl');
+  wb.innerHTML='<span class="em">🎨</span><span><span class="t">Welt wechseln</span><span class="d">Gerade: '+esc(w.name)+' '+w.icon+'</span></span>';
+  wb.onclick=()=>go('#/welt');app.appendChild(wb);
 
-  const n=Math.min(STICKER.length,Math.floor(S.stars/PRO_STICKER));
+  const ST=w.sticker,n=Math.min(ST.length,Math.floor(S.stars/PRO_STICKER));
   const st=el('div','sticker');
   const rest=PRO_STICKER-(S.stars%PRO_STICKER);
-  st.innerHTML='<h2>🏅 Meine Sticker ('+n+' von '+STICKER.length+')</h2><div class="row">'+STICKER.map((s,i)=>'<span class="'+(i<n?'':'zu')+'">'+s+'</span>').join('')+'</div>'+
-    (n<STICKER.length?'<div class="bar"><i style="width:'+((S.stars%PRO_STICKER)/PRO_STICKER*100)+'%"></i></div><p>Noch '+rest+' ⭐ bis zum nächsten Sticker!</p>':'<p>Du hast alle Sticker gesammelt! 🏆</p>');
+  st.innerHTML='<h2>🏅 '+esc(w.stickerTitel)+' ('+n+' von '+ST.length+')</h2><div class="row">'+ST.map((x,i)=>'<span class="'+(i<n?'':'zu')+'">'+x+'</span>').join('')+'</div>'+
+    (n<ST.length?'<div class="bar"><i style="width:'+((S.stars%PRO_STICKER)/PRO_STICKER*100)+'%"></i></div><p>Noch '+rest+' ⭐ bis zum nächsten '+esc(w.stickerWort)+'!</p>':'<p>Du hast alles gesammelt! 🏆</p>');
   app.appendChild(st);
 
   const p=el('details','parents');
@@ -155,13 +232,74 @@ function seiteStart(){
    '<li><b>Arbeitsblätter:</b> Übungen und Anzahl auswählen, dann drucken oder als PDF speichern. Mit „Neu mischen“ entsteht jedes Mal ein anderes Blatt, auf Wunsch mit Lösungsblatt. Drucken klappt am besten am Computer oder Handy, auf dem Kinder-Tablet meist nicht.</li>'+
    '<li><b>Diktat üben:</b> Die App liest die Sätze vor. Am besten im Modus <b>„Auf Papier“</b> schreiben lassen. Klappt das Vorlesen nicht, auf <b>„Satz zeigen“</b> tippen und selbst vorlesen.</li>'+
    '<li>Falsch gelöste Aufgaben landen bei <b>„Meine Übe-Aufgaben“</b> und verschwinden, wenn sie beim ersten Versuch klappen.</li>'+
-   '<li>Alle '+PRO_STICKER+' Sterne gibt es einen neuen Sticker.</li></ul>'+
-   '<p>Fortschritt und Sterne werden nur in diesem Browser gespeichert.</p>'+
+   '<li>Alle '+PRO_STICKER+' Sterne gibt es ein neues Sammelbild. Sterne, Ränge und Sammlung gelten in allen Welten.</li>'+
+   '<li>Die neuen Themen richten sich nach dem <b>Fachlehrplan Grundschule Sachsen-Anhalt</b> (Stand 01.08.2026, Schuljahrgänge 3/4).</li></ul>'+
+   speicherInfo()+
    (FEHLER.length?'<p class="err"><b>Hinweis zu den Inhalten:</b><br>'+FEHLER.map(esc).join('<br>')+'</p>':'');
+  p.appendChild(sicherungsBereich());
   const reset=el('button','linkbtn','Fortschritt zurücksetzen');
   reset.onclick=()=>{if(reset.dataset.c){S.stars=0;S.best={};S.wrong=[];save();render()}else{reset.dataset.c=1;reset.textContent='Wirklich alles zurücksetzen? Nochmal tippen'}};
   p.appendChild(reset);
   app.appendChild(p);
+}
+
+/* ============ Welt wählen ============ */
+function seiteWelt(){
+  setFarbe(null);kopf('Welt wählen','#/');
+  app.appendChild(el('p','instr','Wie soll deine Lernwelt aussehen? Tippe eine Welt an!'));
+  const g=el('div','welten');
+  Object.values(WELTEN).forEach(w=>{
+    const b=el('button','weltkarte'+(w.id===welt().id?' aktiv':''));b.dataset.vorschau=w.id;
+    const farben=K.faecher.map(f=>Object.assign({},f,w.faecher[f.id]||{}).farbe);
+    b.innerHTML='<span class="wk-bild">'+(w.maskottchen||OWL)+'</span><span class="wk-name">'+esc(w.name)+' '+w.icon+'</span><span class="wk-text">'+esc(w.beschreibung)+'</span>'+
+      '<span class="wk-farben">'+farben.map(c=>'<i style="background:'+c+'"></i>').join('')+'</span>'+(w.id===welt().id?'<span class="badge">AKTIV</span>':'');
+    b.onclick=()=>{S.welt=w.id;save();weltAnwenden();confetti();go('#/')};
+    g.appendChild(b);
+  });
+  app.appendChild(g);
+}
+
+/* ============ Speichern und Sichern ============ */
+let speicherOK=true;
+try{localStorage.setItem(PFX+'test','1');localStorage.removeItem(PFX+'test')}catch(e){speicherOK=false}
+try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(e){}
+function speicherInfo(){
+  return speicherOK?'<p>✅ Sterne, Sammlung und Übe-Aufgaben werden <b>auf diesem Gerät</b> gespeichert, ohne Konto und ohne Kosten. Mit dem Sicherungscode unten kannst du den Stand sichern oder auf ein anderes Gerät übertragen.</p>'
+    :'<p class="err">⚠️ Dieser Browser erlaubt gerade kein Speichern. Auf dem Kinder-Tablet im Eltern-Dashboard bei „Fire Tablet Webbrowser“ die Option <b>„Cookies aktivieren“</b> einschalten.</p>';
+}
+function sicherungsCode(){
+  const d={v:1,s:S.stars,b:S.best,w:S.wrong,p:S.paper,welt:S.welt,t:new Date().toISOString().slice(0,10)};
+  return 'VS1-'+btoa(unescape(encodeURIComponent(JSON.stringify(d))));
+}
+function sicherungLaden(code){
+  const c=String(code||'').trim().replace(/\s+/g,'');
+  if(!/^VS1-/.test(c))throw new Error('Das ist kein Sicherungscode.');
+  const d=JSON.parse(decodeURIComponent(escape(atob(c.slice(4)))));
+  if(typeof d.s!=='number'||typeof d.b!=='object'||!Array.isArray(d.w))throw new Error('Der Code ist beschädigt.');
+  S.stars=d.s;S.best=d.b;S.wrong=d.w.filter(k=>KEYMAP[k]);S.paper=!!d.p;if(WELTEN[d.welt])S.welt=d.welt;save();weltAnwenden();
+}
+function sicherungsBereich(){
+  const box=el('div','sicherung');
+  box.innerHTML='<h3>💾 Fortschritt sichern oder übertragen</h3>';
+  const b1=el('button','btn sec','Sicherungscode anzeigen');const out=el('div','hidden');
+  b1.onclick=()=>{
+    out.classList.remove('hidden');out.innerHTML='';
+    const ta=el('textarea','code');ta.readOnly=true;ta.value=sicherungsCode();out.appendChild(ta);
+    const cp=el('button','btn','📋 Kopieren');cp.onclick=()=>{ta.select();let ok=false;try{ok=document.execCommand('copy')}catch(e){}
+      if(navigator.clipboard)navigator.clipboard.writeText(ta.value).then(()=>cp.textContent='✓ Kopiert',()=>{cp.textContent=ok?'✓ Kopiert':'Bitte markieren und kopieren'});else cp.textContent=ok?'✓ Kopiert':'Bitte markieren und kopieren'};
+    out.appendChild(cp);
+    out.appendChild(el('p','tipp','Code z. B. in einer Notiz oder per Nachricht an dich selbst speichern. Er enthält '+S.stars+' Sterne vom '+new Date().toLocaleDateString('de-DE')+'.'));
+  };
+  const b2=el('button','btn sec','Code einfügen');const inp=el('div','hidden');
+  b2.onclick=()=>{
+    inp.classList.remove('hidden');inp.innerHTML='';
+    const ta=el('textarea','code');ta.placeholder='Sicherungscode hier einfügen (beginnt mit VS1-)';inp.appendChild(ta);
+    const ld=el('button','btn','Fortschritt laden');const msg=el('p','tipp');
+    ld.onclick=()=>{try{if(!ld.dataset.c){ld.dataset.c=1;ld.textContent='Aktuellen Stand wirklich ersetzen? Nochmal tippen';return}sicherungLaden(ta.value);msg.textContent='✓ Geladen!';setTimeout(render,600)}catch(e){msg.textContent='⚠️ '+e.message;ld.dataset.c='';ld.textContent='Fortschritt laden'}};
+    inp.append(ld,msg);
+  };
+  const row=el('div','btnrow');row.append(b1,b2);box.append(row,out,inp);
+  return box;
 }
 
 /* ============ Fach-Seite ============ */
@@ -176,9 +314,9 @@ function themaKarte(th){
 function seiteFach(f){
   setFarbe(f);kopf(f.titel,'#/');
   const th=themenVon(f.id,false),alt=themenVon(f.id,true);
-  const k=el('div','fachkopf');k.innerHTML='<span class="ic">'+f.emoji+'</span><div><h2>'+esc(f.titel)+'</h2><p>'+(th.length?'Such dir ein Thema aus!':'Hier ist noch alles leer.')+'</p></div>';
+  const fs=fachStil(f);const k=el('div','fachkopf');k.innerHTML='<span class="ic">'+fs.emoji+'</span><div>'+(fs.label?'<span class="lbl">'+esc(fs.label)+'</span>':'')+'<h2>'+esc(f.titel)+'</h2><p>'+(th.length?'Such dir ein Thema aus!':'Hier ist noch alles leer.')+'</p></div>';
   app.appendChild(k);
-  if(!th.length&&!alt.length){app.appendChild(el('div','leer',OWL+'Hier kommen bald spannende Themen hin!'));return}
+  if(!th.length&&!alt.length){app.appendChild(el('div','leer',maskottchen()+'Hier kommen bald spannende Themen hin!'));return}
   const list=el('div','themen');th.forEach(t=>list.appendChild(themaKarte(t)));app.appendChild(list);
   if(alt.length){
     const d=el('details','archiv');d.innerHTML='<summary>📦 Ältere Themen ('+alt.length+')</summary>';
@@ -193,11 +331,11 @@ function seiteThema(th){
   app.appendChild(k);
   const ak=el('div','aktionen');
   if(th.uebungen.length>1){
-    const mix=el('button','wide');mix.style.background=f.farbe;mix.style.color='#fff';mix.style.boxShadow='0 4px 0 '+f.dunkel;
+    const fs=fachStil(f);const mix=el('button','wide');mix.style.background=fs.farbe;mix.style.color=fs.text||'#fff';mix.style.boxShadow='0 4px 0 '+fs.dunkel;
     mix.innerHTML='<span class="em">🎲</span><span><span class="t">Gemischte Runde</span><span class="d">Von allem etwas</span></span>';
     mix.onclick=()=>startRound({art:'mix',th});ak.appendChild(mix);
   }
-  const dr=el('button','wide');dr.style.background='#fff';dr.style.border='2px solid '+f.farbe;
+  const dr=el('button','wide');dr.style.background='var(--card)';dr.style.border='2px solid var(--f)';
   dr.innerHTML='<span class="em">🖨️</span><span><span class="t">Arbeitsblatt drucken</span><span class="d">Üben auf Papier</span></span>';
   dr.onclick=()=>go('#/drucken/'+encodeURIComponent(th.id));ak.appendChild(dr);
   app.appendChild(ak);
@@ -298,17 +436,17 @@ function endRound(){
   if(R.spec.art==='uebung'){const k=R.spec.u._key;S.best[k]=Math.max(S.best[k]||0,stars)}
   save();
   const nachher=Math.floor(S.stars/PRO_STICKER);
-  R.done=true;R.result={stars,pts:Math.round(R.points*10)/10,sticker:(nachher>vorher&&nachher<=STICKER.length)?STICKER[nachher-1]:null};
+  R.done=true;R.result={stars,pts:Math.round(R.points*10)/10,sticker:(nachher>vorher&&nachher<=welt().sticker.length)?nachher-1:null};
   zeigeEnde();
-  if(stars===3||R.result.sticker)confetti();
+  if(stars===3||R.result.sticker!==null)confetti();
 }
 function zeigeEnde(){
   updateBadge();app.innerHTML='';
   const {stars,pts,sticker}=R.result;
   const c=el('div','card end');
-  const msg=stars===3?'Super gemacht'+(K.kind?', '+esc(K.kind):'')+'! 🏆':stars===2?'Richtig gut!':stars===1?'Gut geübt, weiter so!':'Übung macht den Meister! 💪';
+  const w=welt();const msg=w.ende[3-stars].replace('{n}',K.kind?', '+esc(K.kind):'');
   c.innerHTML='<div class="big">'+starStr(stars)+'</div><h2>'+msg+'</h2><p>'+String(pts).replace('.',',')+' von '+R.list.length+' Punkten</p>'+
-    (sticker?'<div class="neuer"><span>'+sticker+'</span>Neuer Sticker für dein Album!</div>':'')+
+    (sticker!==null&&sticker!==undefined?'<div class="neuer"><span>'+w.sticker[sticker]+'</span>'+esc(w.stickerNeu)+'</div>':'')+
     (S.wrong.length?'<p>🔁 '+S.wrong.length+' Aufgabe'+(S.wrong.length>1?'n':'')+' zum Üben gemerkt.</p>':'');
   const row=el('div','btnrow');row.style.justifyContent='center';
   const again=el('button','btn','Nochmal');again.onclick=()=>startRound(R.spec);
@@ -318,7 +456,7 @@ function zeigeEnde(){
 }
 function confetti(){
   const box=document.getElementById('confetti');box.innerHTML='';
-  const em=['⭐','🎉','✨','🌟','🎈'];
+  const em=welt().konfetti;
   for(let i=0;i<34;i++){const s=el('span','',em[i%em.length]);s.style.left=Math.random()*100+'vw';s.style.animationDuration=(1.8+Math.random()*1.8)+'s';s.style.animationDelay=(Math.random()*.6)+'s';box.appendChild(s)}
   setTimeout(()=>box.innerHTML='',4500);
 }
@@ -405,7 +543,7 @@ const RENDER={
   const line=el('div','sentence');const parts=it.text.split('___');const inputs=[];
   parts.forEach((pt,i)=>{line.appendChild(el('span','',pt));if(i<parts.length-1){
     const inp=el('input','blank');inp.type='text';noAuto(inp);
-    if(zahl){inp.setAttribute('inputmode','numeric');inp.setAttribute('pattern','[0-9]*')}
+    if(zahl){const komma=(ans[i]||[]).some(x=>/[.,]/.test(x));inp.setAttribute('inputmode',komma?'decimal':'numeric');if(!komma)inp.setAttribute('pattern','[0-9]*')}
     const len=Math.max(...(ans[i]||['']).map(x=>x.length));inp.style.width=(Math.max(3,len)+2)+'ch';inputs.push(inp);line.appendChild(inp)}});
   ctx.body.appendChild(line);
   if(!zahl)ctx.body.appendChild(charBar());
@@ -535,8 +673,8 @@ const RENDER={
   function tapR(j){const i=paar.indexOf(j);if(i>=0){paar[i]=null;selR=null}else{selR=selR===j?null:j}verbinde()}
   function verbinde(){if(selL!==null&&selR!==null){paar[selL]=selR;selL=selR=null}zeichne()}
   function zeichne(){
-    [...bL,...bR].forEach(b=>{b.classList.remove('sel');b.style.borderColor='';b.style.background='';const nr=b.querySelector('.nr');if(nr)nr.remove()});
-    paar.forEach((j,i)=>{if(j===null)return;[bL[i],bR[j]].forEach(b=>{b.classList.remove('bad');b.style.borderColor=FARBEN[i%6];b.style.background=HELL[i%6];const s=el('span','nr',String(i+1));s.style.background=FARBEN[i%6];b.appendChild(s)})});
+    [...bL,...bR].forEach(b=>{b.classList.remove('sel');b.style.borderColor='';b.style.background='';b.style.color='';const nr=b.querySelector('.nr');if(nr)nr.remove()});
+    paar.forEach((j,i)=>{if(j===null)return;[bL[i],bR[j]].forEach(b=>{b.classList.remove('bad');b.style.borderColor=FARBEN[i%6];b.style.background=HELL[i%6];b.style.color='#2B2A33';const s=el('span','nr',String(i+1));s.style.background=FARBEN[i%6];b.appendChild(s)})});
     if(selL!==null)bL[selL].classList.add('sel');if(selR!==null)bR[selR].classList.add('sel');
   }
   const sol=P.map(p=>esc(p[0])+' → <b>'+esc(p[1])+'</b>').join('<br>');
@@ -698,7 +836,7 @@ const bildHtml=it=>it.bild?'<span class="ab-bild">'+esc(it.bild)+'</span>':'';
 const DRUCK={
  luecke(it){
   const ans=antworten(it);let i=0,j=0;
-  const kurz=strip(it.text).replace(/___/g,'').length<=14&&!it.bild&&!it.hinweis;
+  const kurz=strip(it.text).replace(/___/g,'').length<=14&&ans.length<=2&&!it.bild&&!it.hinweis;
   const a=it.text.replace(/___/g,()=>luecke(Math.max(...ans[i++].map(x=>x.length))+2,kurz?26:60));
   const l=it.text.replace(/___/g,()=>loesLuecke(ans[j++][0]));
   return {a:bildHtml(it)+(it.hinweis?'<i>('+esc(it.hinweis)+')</i> ':'')+a,l,k:kurz?'k3':''};
@@ -767,8 +905,8 @@ function arbeitsblatt(th,o,seed){
   const f=FACH[th.fach];
   const us=th.uebungen.filter(u=>o.sel[u.id]);
   if(!us.length)return '<div class="leer">Wähle mindestens eine Übung aus.</div>';
-  let blatt='<div class="paper"><div class="ab-kopf">'+OWL+'<div class="tt"><span class="ab-fach">'+esc(f.titel)+'</span><h2>'+esc(th.titel)+'</h2></div><div class="name">Name: <span></span><br>Datum: <span></span></div></div>';
-  let loes='<div class="paper ab-loes"><div class="ab-kopf">'+OWL+'<div class="tt"><span class="ab-fach">Lösungen · '+esc(f.titel)+'</span><h2>'+esc(th.titel)+'</h2></div></div>';
+  let blatt='<div class="paper"><div class="ab-kopf">'+maskottchen()+'<div class="tt"><span class="ab-fach">'+esc(f.titel)+'</span><h2>'+esc(th.titel)+'</h2></div><div class="name">Name: <span></span><br>Datum: <span></span></div></div>';
+  let loes='<div class="paper ab-loes"><div class="ab-kopf">'+maskottchen()+'<div class="tt"><span class="ab-fach">Lösungen · '+esc(f.titel)+'</span><h2>'+esc(th.titel)+'</h2></div></div>';
   us.forEach(u=>{
     const rnd=rng(seed^parseInt(hash(u._key),36));
     const items=pick(u.aufgaben,Math.min(o.n,u.aufgaben.length),rnd);
@@ -784,7 +922,9 @@ function arbeitsblatt(th,o,seed){
     gruppen.forEach(([auftrag,its])=>{
       sec+='<p class="auftrag">'+esc(auftrag)+'</p><ol class="ab-liste" style="counter-reset:nr '+nr+'">';
       ls+='<ol class="ab-liste" style="counter-reset:nr '+nr+'">';
-      its.forEach(it=>{const d=DRUCK[it.t](it,rnd);sec+='<li class="'+(d.k||'')+' '+(d.cls||'')+'">'+d.a+'</li>';ls+='<li class="'+(d.k==='k3'?'k3':'')+'">'+d.l+'</li>';nr++});
+      const ds=its.map(it=>DRUCK[it.t](it,rnd));
+      const rang=d=>d.k==='k3'?0:d.k==='k2'?1:2;
+      ds.map((d,i)=>[d,i]).sort((x,y)=>rang(x[0])-rang(y[0])||x[1]-y[1]).forEach(([d])=>{sec+='<li class="'+(d.k||'')+' '+(d.cls||'')+'">'+d.a+'</li>';ls+='<li class="'+(d.k==='k3'?'k3':'')+'">'+d.l+'</li>';nr++});
       sec+='</ol>';ls+='</ol>';
     });
     blatt+=sec+'</section>';loes+=ls+'</section>';
@@ -795,5 +935,6 @@ function arbeitsblatt(th,o,seed){
 }
 
 /* ============ Start ============ */
+weltAnwenden();
 ladeThemen(()=>{vorbereiten();render()});
 })();

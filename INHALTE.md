@@ -80,4 +80,5 @@ Optional bei **jeder** Aufgabe: `"frage"` (eigener Auftrag), `"tipp"` (Hilfe nac
 > - Inhalte eng an den Arbeitsheft-Seiten orientieren. Fehler, die im Heft passiert sind, als eigene Übung „Stolperwörter“ aufnehmen.
 > - Zu jeder Übung einen kurzen, kindgerechten Merke-Text und bei schwierigen Aufgaben einen Tipp.
 > - Fachlich korrekt. Wenn du dir bei einer Aufgabe unsicher bist, lass sie weg.
+> - Er geht in Sachsen-Anhalt zur Schule. Richte dich nach dem Fachlehrplan Grundschule Sachsen-Anhalt (Schuljahrgänge 3/4, Stand 01.08.2026).
 > - Gib nur den Inhalt der Datei aus, beginnend mit `thema({`.
